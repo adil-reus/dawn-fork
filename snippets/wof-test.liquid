@@ -1,0 +1,460 @@
+{% comment %} {% assign add_to_cart_color = block.settings.cart_button_color %}
+{% assign add_to_cart_hover_color = block.settings.cart_hover_color %} {% endcomment %}
+{% assign table_heading = block.settings.table_heading %}
+{% assign table_qty_col_heading = block.settings.table_qty_col_heading %}
+{% assign table_price_col_heading = block.settings.table_price_col_heading  %}
+{%  assign price_col = "Price" %}  
+{% if table_price_col_heading != blank %} {% assign price_col = table_price_col_heading %} {% endif %}
+
+{% assign add_to_cart_text  = block.settings.add_to_cart_text %}
+{% if add_to_cart_text == blank %} {% assign add_to_cart_text = "Add to cart" %} {% endif %}
+
+{% assign add_to_cart_success_text = block.settings.add_to_cart_success_text %}
+{% comment %} {% assign show_inventory = block.settings.show_inventory %} {% endcomment %}
+{% assign table_inventory_text = block.settings.table_inventory_text %}
+
+{% assign hide_prices = shop.metafields.adesk_01['hide_prices'] %}
+{% if hide_prices == blank %}{% assign hide_prices = false %}{% endif %}
+{% if hide_prices == true %}
+{% if customer %} {% assign hide_prices = false %} {% endif %}  
+{% assign hide_prices_text = shop.metafields.adesk_01['hide_prices_text'] | escape %}
+{% if hide_prices_text == blank %}{% assign hide_prices_text = "Login to view prices" %}{% endif %}
+
+{% assign hide_prices_url = shop.metafields.adesk_01['hide_prices_url'] | escape %}
+{% if hide_prices_url == blank %}{% assign hide_prices_url = "/account/login" %}{% endif %}
+{% endif %}
+{% comment %} {% assign hide_prices = false %} {% endcomment %}
+
+{% assign sku = shop.metafields.adesk_01['sku'] %}
+{% if sku == blank %}{% assign sku = false %}{% endif %}
+
+{% assign compare_at_price = shop.metafields.adesk_01['compare_price'] %}
+compare_at_price {{ compare_at_price }}
+<br />
+{% if compare_at_price == null %}{% assign compare_at_price = true %}{% endif %}
+compare_at_price {{ compare_at_price }}
+<br />
+
+{% assign show_inventory = shop.metafields.adesk_01['inventory'] %}
+{% if show_inventory == null %}{% assign show_inventory = true %}{% endif %}
+
+{% assign out_of_stock = shop.metafields.adesk_01['out_of_stock'] %}
+{% if out_of_stock == blank %}{% assign out_of_stock = false %}{% endif %}
+
+{% assign variant_images = shop.metafields.adesk_01['variant_images'] %}
+{% if variant_images == blank %}{% assign variant_images = false %}{% endif %}
+
+{% assign show_table_as = shop.metafields.adesk_01['show_table_as'] | escape %}
+{% if show_table_as == blank %}{% assign show_table_as = "show_as_table" %}{% endif %}
+{% comment %} {% assign show_table_as = "show_as_table" %} {% endcomment %}
+{% assign table_popup_btn_text = shop.metafields.adesk_01['table_popup_btn_text'] %}
+{% if table_popup_btn_text == blank %}{% assign table_popup_btn_text = "Order in bulk" %}{% endif %}
+{% assign table_popup_btn_color = shop.metafields.adesk_01['table_popup_btn_color'] %}
+{% assign table_popup_text = shop.metafields.adesk_01['table_popup_text'] | escape %}
+
+{% assign table_bg_color = shop.metafields.adesk_01['table_bg_color'] %}
+{% if table_bg_color == blank %}{% assign table_bg_color = "#ffffff" %}{% endif %}
+{% assign table_text_color = shop.metafields.adesk_01['table_text_color'] %}
+{% if table_text_color == blank %}{% assign table_text_color = "#000000" %}{% endif %}
+{% assign table_design = shop.metafields.adesk_01['table_design'] | escape %}
+{% if table_design == blank %}{% assign table_design = "double_line" %}{% endif %}
+{% assign table_atc_text_color = shop.metafields.adesk_01['table_atc_text_color'] %}
+{% if table_atc_text_color == blank %}{% assign table_atc_text_color = "#ffffff" %}{% endif %}
+{% assign table_atc_color = shop.metafields.adesk_01['table_atc_color'] %}
+{% if table_atc_color == blank %}{% assign table_atc_color = "#000000" %}{% endif %}
+
+{% comment %}{% assign atc_behaviour = 'atc_behaviour_modal' %}
+{% assign atc_btn_type = "atc_multiple_btn" %} 
+{% endcomment %}
+{% assign atc_behaviour = shop.metafields.adesk_01['atc_behaviour'] | escape %}
+{% if atc_behaviour == blank %}{% assign atc_behaviour = "atc_behaviour_modal" %}{% endif %}
+
+{% assign atc_btn_type = shop.metafields.adesk_01['atc_btn'] | escape %}
+{% if atc_btn_type == blank %}{% assign atc_btn_type = "atc_single_btn" %}{% endif %}
+
+{% assign min_qty = 0 %}
+{% if atc_btn_type == "atc_multiple_btn"%}{% assign min_qty = 1 %}{% endif %}
+
+
+{% if table_heading != blank %} 
+{% unless show_table_as == "show_as_popup" %}
+<h2>{{ table_heading }}</h2>
+{% endunless %}
+{% endif %}
+
+{% if show_table_as == "show_as_popup" %}
+
+<button id="adesk_bulk_btn">{% if table_popup_text != blank %}{{ table_popup_text }} {% else %}Order in bulk{% endif %}</button>
+
+<div id="adesk_myModal" class="adesk_modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="adesk_close">&times;</span>
+      {% if table_heading != blank %} 
+      <h2>{{ table_heading }}</h2>
+      {% endif %}      
+    </div>
+    <div class="modal-body">
+   {% endif %}
+
+   {% assign colspan_count = 0 %}
+<table id="adesk_table">  
+<tr>
+  {% if sku == true %}
+  <th>SKU</th>
+  {% assign colspan_count = colspan_count | plus: 1 %}
+  {% endif %}
+  {% if variant_images == true %}
+    <th>Images</th>
+    {% assign colspan_count = colspan_count | plus: 1 %}
+    {% endif %}
+  {% if product.options[0] != blank and product.options[0] != "Title" %}
+  <th>{{ product.options[0]}}</th>
+  {% assign colspan_count = colspan_count | plus: 1 %}
+  {% endif %}
+   {% if product.options[1] != blank %}
+  <th>{{ product.options[1]}}</th>
+  {% assign colspan_count = colspan_count | plus: 1 %}
+  {% endif %}
+   {% if product.options[2] != blank %}
+  <th>{{ product.options[2]}}</th>
+  {% assign colspan_count = colspan_count | plus: 1 %}
+  {% endif %}
+  <th>{{ price_col }} </th> 
+  <th>{% if table_price_col_heading != blank %} {{table_qty_col_heading }} {% else %} Quantity {% endif %} </th>   
+  {% if atc_btn_type == "atc_multiple_btn" and hide_prices == false %}
+  <th></th>
+  {% assign colspan_count = colspan_count | plus: 1 %}
+  {% endif %}
+</tr>
+{% for variant in product.variants %}  
+
+{% assign hide_variant = false %}
+{% assign disable_qty = false %}
+
+{% if out_of_stock == true %}        
+      {% if  variant.inventory_quantity < 1 and variant.inventory_policy != "continue" and variant.inventory_management %}
+      {% assign hide_variant = true %}
+      {% endif %}
+ {% else %}     
+ {% if  variant.inventory_quantity < 1 and variant.inventory_policy != "continue" and variant.inventory_management %}
+  {% assign disable_qty = true %}
+  {% endif %}
+{% endif %}
+
+  {% if hide_variant == true %}{% continue %}{% endif %}
+<tr>
+  {% if sku == true %}
+    <td data-th="SKU:"> {{variant.sku }}</td>
+    {% endif %}    
+    {% if variant_images == true %}
+      <td>     
+       <img src="{{variant.image | product_img_url: 'small' }}" alt="{{variant.image.alt}}" width="auto" height="auto" />
+      </td>
+      {% endif %}
+  
+{% if product.options[0] != blank and variant.option1 != "Default Title" %}
+  <td data-th="{{product.options[0]}}:">{{ variant.option1 }}</td>    
+  {% endif %}
+  
+{% if product.options[1] != blank %}
+<td data-th="{{ product.options[1] }}:">{{ variant.option2 }}</td>  
+  {% endif %}
+
+  {% if product.options[2] != blank %}
+<td data-th="{{ product.options[2] }}:">{{ variant.option3 }}</td>  
+  {% endif %}
+          
+<td data-th="{{ price_col }}:">
+  {% if hide_prices == false  %}  
+   {% if variant.compare_at_price > variant.price %}<del style="color:red">{{ variant.compare_at_price | money}}</del>{% endif %} {{ variant.price | money}}
+  {% else %}
+    <a href="{{hide_prices_url}}"> {{hide_prices_text}}</a>
+  {% endif %}
+  </td>
+       
+  
+  <td>
+  <div class="adesk_counter">  
+  <span class="down" {% if disable_qty == false %}onClick='decreaseCount(event, this)'{% endif %}>-</span>
+  <input type="text" value="{% if disable_qty == true %}0{% else %}{{ min_qty }}{% endif %}" min="{% if disable_qty == true %}0{% else %}{{ min_qty }}{% endif %}" class="{% if disable_qty == true %}adesk_strikethrough{% else %}adesk_counter_qty{% endif %}" data-id="{{variant.id}}">
+  <span class="up" {% if disable_qty == false %}onClick='increaseCount(event, this)'{% endif %}>+</span>
+</div>
+    {% if show_inventory and hide_prices == false %}
+    <p>{{table_inventory_text}} {{ variant.inventory_quantity }} </p>
+    {% endif %}
+</td>
+ {% if atc_btn_type == "atc_multiple_btn" and disable_qty == false and hide_prices == false %}
+  <td>
+    <button class="btn adesk_table_atc" data-id="{{variant.id}}">
+    {{add_to_cart_text}}
+    </button>
+<!--     <br />
+    <p data-id="{{variant.id}}"></p> -->
+  </td>
+  {% elsif atc_btn_type == "atc_multiple_btn" and disable_qty == true and hide_prices == false %}
+   <td></td>
+  {% endif %}
+</tr>
+{% endfor %}  
+{% if atc_btn_type == "atc_single_btn" and hide_prices == false %}
+<tr class="atc-container">
+  {% assign colspan_count = colspan_count | plus: 2 %}
+  <td colspan="{{colspan_count}}">
+    <button id="adesk_table_atc" class="btn">
+    {{add_to_cart_text}}
+    </button>
+  </td>
+</tr>
+    {% endif %}
+</table>
+<p></p>
+<div id="adesk_success_message"><span>Item(s) added to cart</span></div>
+
+      {% if show_table_as == "show_as_popup" %}
+
+    </div>
+<!--     <div class="modal-footer">
+      <h3>Modal Footer</h3>
+    </div> -->
+  </div>
+        {% endif %}
+
+</div>
+{% if atc_behaviour == "atc_behaviour_message" and atc_btn_type == "atc_multiple_btn" %}
+<div id="adesk_snackbar">Item(s) added to cart</div>
+{% endif %}
+
+<style>  
+{% if show_table_as == "show_as_table"  %}
+  .adesk_table_container{
+    overflow-x: auto;
+  }
+{% endif %}
+#adesk_table{
+  background-color:{{table_bg_color}};    
+  {% if show_table_as == "show_as_popup"  %}width:100%;{%endif%}
+  }
+#adesk_table td, #adesk_table tr, #adesk_table th{
+color: {{table_text_color}}
+}
+{% if table_design == "double_line" %}  
+  table#adesk_table tr:nth-child(even){  
+    background-color:{{table_bg_color}}; 
+    filter: brightness(90%);
+  }  
+{% endif %}
+  #adesk_table_atc, .adesk_table_atc, .adesk_btn {
+  background-color: {{ table_atc_color}};
+  color: {{ table_atc_text_color }};
+}
+#adesk_table_atc:hover, .adesk_table_atc:hover, .adesk_btn:hover {
+  background-color: {{ table_atc_text_color}};
+  color:  {{ table_atc_color}}
+}
+{% if atc_behaviour == "atc_behaviour_modal" %}
+.adesk_btn{
+      text-decoration: none;
+    display: inline-block;
+    width: 160px;
+    margin: 0 0 8px 0;
+    padding: 6px 1px;
+    font-weight: 600;
+}
+  #adesk_notification_modal .modal-header{
+    padding: 0;
+    position: absolute;
+    right: 0;    
+    top: 9px;
+    bottom: 0;
+    line-height: 0;
+  }
+  {% endif %}
+  {% if show_table_as == "show_as_popup" %}
+    #adesk_bulk_btn{
+      background-color: {{ table_popup_btn_color }};
+      color:  {{ table_popup_btn_text }}
+    }
+    #adesk_bulk_btn:hover{
+      background-color: {{ table_popup_btn_text }};
+      color:  {{ table_popup_btn_color }}
+    }
+    {% endif %}
+    {% if hide_prices %}
+      {% unless customer %}
+    /*     #spof_custom_add_to_cart, #adesk_table tr td:nth-child(3){
+        display:none !important
+      } */
+      {% endunless %}
+    {% endif %}
+    </style>
+    
+    <script>
+      {% if atc_btn_type == "atc_single_btn" and hide_prices == false  %}
+      var  adesk_table_atc = document.getElementById('adesk_table_atc');
+      
+      adesk_table_atc.onclick = function(){
+      
+        adesk_table_atc.disabled = true;
+        adesk_table_atc.innerHTML ="Loading...";
+        
+      const adesk_counter_qty = document.querySelectorAll('.adesk_counter_qty');
+      const adesk_add_to_cart = item =>
+      new Promise(resolve =>{
+    
+    fetch('/cart/add.js', {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(item),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log('Success:', data);
+        resolve(item)
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        resolve(item)
+      });
+          }
+          
+      )
+    const addAllToCart = async () => {
+      for (item of adesk_counter_qty) {
+     
+           if(item.value > 0 ){
+               var post_data = { id: item.getAttribute('data-id'), quantity: item.value }
+        const itemInfo = await adesk_add_to_cart(post_data);
+        // console.log(`${itemInfo}: item is added`);
+           }
+      }
+    
+      notification_container();
+    };
+    addAllToCart();
+            
+      }
+      {% elsif atc_btn_type == "atc_multiple_btn" %}
+    
+            var adesk_table_atc= document.querySelectorAll('.adesk_table_atc')
+    
+        for( btn of adesk_table_atc){
+            btn.addEventListener('click', function(){
+    
+                this.disabled= true; 
+                var itemId = this.getAttribute('data-id');
+                var qty = document.querySelector("input.adesk_counter_qty[data-id='"+itemId+"']").value;
+                {% if atc_behaviour == "atc_behaviour_message" %}
+                // var x_loading = document.getElementsByClassName("p[data-id='"+qty+"']");
+                // x_loading.className = "loading";              
+                // setTimeout(function(){ x_loading.className = x_loading.className.replace("loading", ""); }, 3000);
+                {% endif %}
+                // console.log( itemId + " qty: " + qty )        
+              
+    
+    async function postData(url = '', data = {}) {
+    
+      const response = await fetch(url, {
+        method: 'POST', 
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin', 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        redirect: 'follow', 
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    }
+    
+    postData('/cart/add.js', { id: itemId, quantity: qty  })
+      .then((data) => {
+        // console.log(data);
+        // notification_container();
+           {% if atc_behaviour == "atc_behaviour_message" %}
+               var x = document.getElementById("adesk_snackbar");
+                x.className = "show";
+                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                // x_loading.className = x_loading.className.replace("loading", "")
+        {% else %}
+             notification_container();
+              {% endif %}
+        this.disabled= false; 
+      }).catch((error) => {
+        console.error('Error:', error);
+      });
+    
+              
+            })
+        }
+      {% endif %}
+    
+      function notification_container(){
+        {% if atc_behaviour == 'atc_behaviour_cart' or atc_behaviour == 'atc_behaviour_checkout' or atc_behaviour == 'atc_behaviour_modal' %}  
+        var adesk_notification_modal = document.getElementById("adesk_notification_modal");    
+        {% if show_table_as == "show_as_popup" %}
+        document.getElementById("adesk_myModal").style.display='none';   
+        {% endif %}
+        adesk_notification_modal.style.display = "block";    
+      {% endif %}
+            
+      {% if atc_behaviour == 'atc_behaviour_cart' %}
+    
+        {% assign notifcaiton_modal = "redirecting to cart page..." %}
+        setTimeout(function(){window.location = '/cart'},2000);
+      
+      {% elsif atc_behaviour == "atc_behaviour_checkout" %}
+    
+        {% assign notifcaiton_modal = "redirecting to checkout page..." %}
+        setTimeout(function(){window.location = '/checkout'},2000);
+      
+      {% elsif atc_behaviour == "atc_behaviour_message" and atc_btn_type == "atc_single_btn" %}
+        
+        var adesk_success_message = document.getElementById('adesk_success_message');
+        adesk_success_message.style.display = 'block';
+        setTimeout(function(){adesk_success_message.style.display = 'none'; },3000);   
+      
+        {% elsif atc_behaviour == "atc_behaviour_message" and atc_btn_type == "atc_multiple_btn" %}
+    
+    
+        
+        {% elsif atc_behaviour == "atc_behaviour_modal" %}
+    
+       {% assign notifcaiton_modal = '<a class="adesk_btn" href="/cart">Cart</a> <a class="adesk_btn" href="/checkout">Checkout</a> <a class="adesk_btn" href="/collections/all">Continue shopping</a>' %}
+        
+      {% endif %}
+    
+        {% if atc_btn_type == "atc_single_btn" %}
+       adesk_table_atc.disabled = false;
+       adesk_table_atc.innerHTML ="{{ add_to_cart_text }}";
+        {% endif %}
+    
+       {%  if atc_behaviour == 'atc_behaviour_modal' %}
+       document.querySelector("#adesk_notification_modal .adesk_close").onclick = function() {
+       adesk_notification_modal.style.display = "none";
+     }
+           {% endif %}
+      }
+    </script>
+      {% if atc_behaviour == 'atc_behaviour_cart' or atc_behaviour == 'atc_behaviour_checkout' or atc_behaviour == 'atc_behaviour_modal' %}
+    
+      <div id="adesk_notification_modal" class="adesk_modal">
+      <div class="modal-content">  
+        {%  if atc_behaviour == 'atc_behaviour_modal' %}
+            <div class="modal-header">
+          <span class="adesk_close">&times;</span>     
+        </div>
+        {% endif %}
+        <div class="modal-body">
+          Item(s) added to cart
+          <br />
+       {{ notifcaiton_modal }}
+        </div>
+      </div>      
+    </div>
+           {% endif %}
+          
