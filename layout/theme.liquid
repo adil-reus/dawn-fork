@@ -30,7 +30,7 @@ TESTING BC
     {% render 'meta-tags' %}
 
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
-    {% include 'wlm-head' %}
+    
 {{ content_for_header }}
 
     {%- liquid
@@ -252,7 +252,7 @@ TESTING BC
     {% section 'announcement-bar' %}
     {% section 'header' %}
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {% comment %}{{ content_for_layout }}{% endcomment %}{% include 'wlm-body' %}
+      {{ content_for_layout }}
     </main>
 
     {% section 'footer' %}
